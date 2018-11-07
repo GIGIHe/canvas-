@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            background-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+</body>
+<script>
+    // 实现的效果:鼠标移动画圆，圆心坐标随鼠标移动，半径固定，颜
+    //色随机，透明度越来越小，直到消失
+    // 一个固定位置的圆扩散出多个圆，基于鼠标位置
+    var myCanvas = document.querySelector('#canvas')
+    var ctx = myCanvas.getContext('2d')
+    var starList = []//存放所有的圆
+    // 设置canvas区域大小,等于当前浏览器大小
+    function init() {
+        myCanvas.width = window.innerWidth
+        myCanvas.height = window.innerHeight
+    }
+    init();
+    // 监听屏幕区大小改变
+    window.onresize = init
+    // 绑定鼠标移动事件
+    myCanvas.addEventListener('mousemove', function (e) {
+        // console.log('move');
+        // 获取鼠标的坐标值
+        var event = window.e || e
+        // console.log(event.offsetX,event.offsetY);
+        starList.push(new Star(event.offsetX, event.offsetY));
+    })
+    // 创建随机数的函数
+    function random(min, max) {
+        // y = kx + b
+        return Math.floor((max - min) * Math.random() + min)
+    }
+    function Star(x, y) {
+        this.x = x;
+        this.y = y;
+        this.opacity = 1;
+        this.color = `rgb(${random(0,256)},${random(0, 256)},${random(0, 256)})`
+        //偏移
+        this.vx = (Math.random() - 0.5) * 3
+        this.vy = (Math.random() - 0.5) * 3
+        this.draw()
+    }
+    Star.prototype = {
+        draw: function () {
+            // console.log(ctx);
+            ctx.beginPath();
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = this.opacity;
+            ctx.globalCompositeOperation = "lighter";
+            ctx.arc(this.x, this.y, 30, 0, Math.PI * 2, false);
+            ctx.fill();
+            this.update()
+        },
+        update: function () {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.opacity *= 0.98;
+        }
+    }
+    //渲染
+    function render() {
+        //清空canvas x,y,width,height
+        ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+        ctx.beginPath();
+        starList.forEach((ele, index) => {
+            ele.draw();
+            // ele.update();
+            if (ele.opacity < 0.05) {
+                starList.splice(index, 1)
+            }
+        })
+        // 每隔一个屏幕刷新频率的时间调用函数
+        requestAnimationFrame(render)
+    }
+    render();
+</script>
+
+</html>

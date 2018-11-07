@@ -68,6 +68,7 @@
             ctx.globalCompositeOperation = "lighter";
             ctx.arc(this.x, this.y, 30, 0, Math.PI * 2, false);
             ctx.fill();
+            this.update()
         },
         update: function () {
             this.x += this.vx;
@@ -82,7 +83,7 @@
         ctx.beginPath();
         starList.forEach((ele, index) => {
             ele.draw();
-            ele.update();
+            // ele.update();
             if (ele.opacity < 0.05) {
                 starList.splice(index, 1)
             }
